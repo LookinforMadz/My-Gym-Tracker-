@@ -1,0 +1,2626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#111111">
+
+<title>Gym & Food Tracker</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #111;
+  color: #f5f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+  min-height: 100vh;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+/* Prevent annoying iPhone zoom */
+input,
+textarea,
+select {
+  font-size: 16px;
+}
+
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 15px;
+  background: #222;
+  color: white;
+  cursor: pointer;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+.container {
+  max-width: 700px;
+  margin: auto;
+  padding: 20px 16px 40px;
+}
+
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+
+h1 {
+  font-size: 28px;
+  margin: 8px 0 22px;
+}
+
+h2 {
+  font-size: 21px;
+  margin: 22px 0 12px;
+}
+
+h3 {
+  font-size: 17px;
+  margin: 0 0 10px;
+}
+
+.muted {
+  color: #999;
+}
+
+.card {
+  background: #1a1a1a;
+  border: 1px solid #2b2b2b;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.home-card {
+  padding: 22px;
+  margin-bottom: 14px;
+  text-align: left;
+}
+
+.home-card strong {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
+.home-card span {
+  color: #999;
+}
+
+.back {
+  background: #1a1a1a;
+  margin-bottom: 15px;
+}
+
+.primary {
+  background: #2d73da;
+}
+
+.danger {
+  background: #9d3030;
+}
+
+.secondary {
+  background: #2a2a2a;
+}
+
+.full {
+  width: 100%;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.row > * {
+  flex: 1;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.actions button {
+  flex: 1;
+  min-width: 120px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  color: #aaa;
+  margin: 12px 0 6px;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #333;
+  background: #101010;
+  color: white;
+  border-radius: 10px;
+  outline: none;
+}
+
+textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+/* Calendar */
+
+.calendar-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.calendar-head button {
+  padding: 8px 13px;
+}
+
+.month-title {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.weekdays,
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.weekdays div {
+  text-align: center;
+  color: #777;
+  font-size: 12px;
+  padding: 5px 0;
+}
+
+.day {
+  min-height: 46px;
+  padding: 0;
+  border-radius: 10px;
+  background: #1b1b1b;
+  color: #ddd;
+  position: relative;
+}
+
+.day.empty {
+  background: transparent;
+}
+
+.day.worked {
+  background: #256ed1;
+  color: white;
+}
+
+.day.today {
+  outline: 2px solid white;
+  outline-offset: -2px;
+}
+
+.day .dot {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: white;
+}
+
+/* Muscle groups */
+
+.category-wrap {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.category {
+  padding: 9px 12px;
+  background: #242424;
+  border: 1px solid #333;
+}
+
+.category.selected {
+  background: #256ed1;
+  border-color: #256ed1;
+}
+
+/* Exercises */
+
+.exercise {
+  border-top: 1px solid #333;
+  padding-top: 14px;
+  margin-top: 14px;
+}
+
+.set-row {
+  display: grid;
+  grid-template-columns: 45px 1fr 1fr 42px;
+  gap: 7px;
+  align-items: center;
+  margin: 7px 0;
+}
+
+.set-number {
+  color: #777;
+  text-align: center;
+}
+
+.small-btn {
+  padding: 9px;
+}
+
+.exercise-title {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.exercise-title input {
+  font-weight: 600;
+}
+
+/* Statistics */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.stat {
+  background: #1a1a1a;
+  border: 1px solid #2b2b2b;
+  border-radius: 14px;
+  padding: 15px;
+}
+
+.stat .value {
+  font-size: 23px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.stat .label {
+  margin: 0;
+  color: #999;
+}
+
+.bar-row {
+  margin: 14px 0;
+}
+
+.bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: 6px;
+}
+
+.bar {
+  height: 9px;
+  background: #292929;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.bar > span {
+  display: block;
+  height: 100%;
+  background: #256ed1;
+  border-radius: 20px;
+}
+
+.recipe {
+  background: #1a1a1a;
+  border: 1px solid #2b2b2b;
+  border-radius: 14px;
+  padding: 15px;
+  margin-bottom: 12px;
+}
+
+.recipe p {
+  white-space: pre-wrap;
+  color: #bbb;
+}
+
+.empty-state {
+  text-align: center;
+  color: #888;
+  padding: 25px 10px;
+}
+
+@media (max-width: 430px) {
+
+  .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .set-row {
+    grid-template-columns: 34px 1fr 1fr 38px;
+    gap: 5px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- HOME -->
+
+<section id="home" class="page active">
+
+  <h1>My Tracker</h1>
+
+  <button class="home-card full" onclick="showPage('gym')">
+    <strong>🏋️ Gym Tracker</strong>
+    <span>Track workouts, exercises and progress</span>
+  </button>
+
+  <button class="home-card full" onclick="showPage('food')">
+    <strong>🍽️ Food Tracker</strong>
+    <span>Save and organize your recipes</span>
+  </button>
+
+  <button class="home-card full" onclick="showPage('stats')">
+    <strong>📊 Statistics</strong>
+    <span>See your progress and training volume</span>
+  </button>
+
+</section>
+
+
+<!-- GYM CALENDAR -->
+
+<section id="gym" class="page">
+
+  <button class="back" onclick="showPage('home')">
+    ← Home
+  </button>
+
+  <h1>Gym Tracker</h1>
+
+  <div class="calendar-head">
+
+    <button onclick="changeMonth(-1)">
+      ‹
+    </button>
+
+    <div class="month-title" id="monthTitle"></div>
+
+    <button onclick="changeMonth(1)">
+      ›
+    </button>
+
+  </div>
+
+  <div class="weekdays">
+
+    <div>Mon</div>
+    <div>Tue</div>
+    <div>Wed</div>
+    <div>Thu</div>
+    <div>Fri</div>
+    <div>Sat</div>
+    <div>Sun</div>
+
+  </div>
+
+  <div id="calendar" class="calendar"></div>
+
+</section>
+
+
+<!-- WORKOUT -->
+
+<section id="workout" class="page">
+
+  <button class="back" onclick="showPage('gym')">
+    ← Calendar
+  </button>
+
+  <h1 id="workoutTitle">
+    Workout
+  </h1>
+
+  <div class="card">
+
+    <label>Date</label>
+
+    <input
+      id="workoutDate"
+      type="date"
+      onchange="changeWorkoutDate(this.value)"
+    >
+
+    <label>Body weight (kg)</label>
+
+    <input
+      id="bodyWeight"
+      type="number"
+      inputmode="decimal"
+      step="0.1"
+      placeholder="e.g. 47.5"
+    >
+
+    <label>Workout duration (minutes)</label>
+
+    <input
+      id="duration"
+      type="number"
+      inputmode="numeric"
+      min="0"
+      step="1"
+      placeholder="e.g. 60"
+    >
+
+  </div>
+
+
+  <div class="card">
+
+    <h3>Muscle groups</h3>
+
+    <div
+      id="categories"
+      class="category-wrap"
+    ></div>
+
+  </div>
+
+
+  <div id="exercises"></div>
+
+
+  <button
+    class="secondary full"
+    onclick="addExercise()"
+  >
+    ＋ Add exercise
+  </button>
+
+
+  <div class="card">
+
+    <label>Notes</label>
+
+    <textarea
+      id="notes"
+      placeholder="Anything you want to remember about this workout..."
+    ></textarea>
+
+  </div>
+
+
+  <div class="actions">
+
+    <button
+      class="primary"
+      onclick="saveWorkout()"
+    >
+      Save workout
+    </button>
+
+    <button
+      class="danger"
+      onclick="deleteWorkout()"
+    >
+      Delete workout
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- STATISTICS -->
+
+<section id="stats" class="page">
+
+  <button
+    class="back"
+    onclick="showPage('home')"
+  >
+    ← Home
+  </button>
+
+  <h1>Statistics</h1>
+
+  <div id="statsContent"></div>
+
+</section>
+
+
+<!-- FOOD -->
+
+<section id="food" class="page">
+
+  <button
+    class="back"
+    onclick="showPage('home')"
+  >
+    ← Home
+  </button>
+
+  <h1>Food Tracker</h1>
+
+
+  <button
+    class="primary full"
+    onclick="showRecipeForm()"
+  >
+    ＋ Add recipe
+  </button>
+
+
+  <div
+    id="recipeForm"
+    class="card"
+    style="display:none"
+  >
+
+    <h3>New recipe</h3>
+
+
+    <label>Recipe name</label>
+
+    <input
+      id="recipeName"
+      placeholder="e.g. Chicken wrap"
+    >
+
+
+    <label>Ingredients</label>
+
+    <textarea
+      id="recipeIngredients"
+      placeholder="List ingredients..."
+    ></textarea>
+
+
+    <label>Instructions</label>
+
+    <textarea
+      id="recipeInstructions"
+      placeholder="How to make it..."
+    ></textarea>
+
+
+    <label>Notes</label>
+
+    <textarea
+      id="recipeNotes"
+      placeholder="Optional"
+    ></textarea>
+
+
+    <div class="actions">
+
+      <button
+        class="primary"
+        onclick="saveRecipe()"
+      >
+        Save recipe
+      </button>
+
+      <button
+        class="secondary"
+        onclick="hideRecipeForm()"
+      >
+        Cancel
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div id="recipes"></div>
+
+</section>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   STORAGE
+========================================================= */
+
+const STORAGE_KEY = "gymWorkouts_v2";
+const OLD_STORAGE_KEY = "gymWorkouts";
+const RECIPE_KEY = "myRecipes";
+
+
+/* =========================================================
+   MUSCLE GROUPS
+========================================================= */
+
+const muscleGroups = [
+
+  "Upper",
+  "Lower",
+  "Back",
+  "Chest",
+  "Shoulders",
+  "Biceps",
+  "Triceps",
+  "Legs",
+  "Core",
+  "Cardio",
+  "Other"
+
+];
+
+
+/* =========================================================
+   LOAD DATA
+========================================================= */
+
+let workouts =
+  JSON.parse(localStorage.getItem(STORAGE_KEY) || "null")
+  || migrateOldWorkouts();
+
+
+let recipes =
+  JSON.parse(localStorage.getItem(RECIPE_KEY) || "[]");
+
+
+let currentMonth = new Date();
+
+let currentWorkoutDate = null;
+
+let editingWorkout = null;
+
+
+/* =========================================================
+   MIGRATE OLD WORKOUT DATA
+========================================================= */
+
+function migrateOldWorkouts() {
+
+  const old =
+    JSON.parse(
+      localStorage.getItem(OLD_STORAGE_KEY) || "{}"
+    );
+
+
+  const converted = {};
+
+
+  Object.keys(old).forEach(date => {
+
+    const w = old[date] || {};
+
+
+    converted[date] = {
+
+      date: date,
+
+      bodyWeight:
+        w.bodyWeight || "",
+
+      duration:
+        w.duration || "",
+
+      categories:
+        Array.isArray(w.categories)
+          ? w.categories
+          : [],
+
+      exercises:
+        Array.isArray(w.exercises)
+
+          ? w.exercises.map(ex => ({
+
+              name:
+                ex.name || "",
+
+              mode:
+                ex.mode || "weighted",
+
+              muscleGroup:
+                ex.muscleGroup
+                ||
+                (
+                  Array.isArray(w.categories)
+                    ? w.categories[0]
+                    : "Other"
+                ),
+
+              sets:
+                Array.isArray(ex.sets)
+
+                  ? ex.sets.map(s => ({
+
+                      weight:
+                        s.weight || "",
+
+                      reps:
+                        s.reps || ""
+
+                    }))
+
+                  : []
+
+            }))
+
+          : [],
+
+      notes:
+        w.notes || ""
+
+    };
+
+  });
+
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(converted)
+  );
+
+
+  return converted;
+}
+
+
+/* =========================================================
+   SAVE WORKOUT DATA
+========================================================= */
+
+function persist() {
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(workouts)
+  );
+
+}
+
+
+/* =========================================================
+   PAGE NAVIGATION
+========================================================= */
+
+function showPage(id) {
+
+  document
+    .querySelectorAll(".page")
+    .forEach(page =>
+      page.classList.remove("active")
+    );
+
+
+  document
+    .getElementById(id)
+    .classList.add("active");
+
+
+  if (id === "gym") {
+    renderCalendar();
+  }
+
+
+  if (id === "stats") {
+    renderStats();
+  }
+
+
+  if (id === "food") {
+    renderRecipes();
+  }
+
+}
+
+
+/* =========================================================
+   DATE
+========================================================= */
+
+function formatDateKey(date) {
+
+  return (
+    date.getFullYear()
+    + "-"
+    + String(date.getMonth() + 1).padStart(2, "0")
+    + "-"
+    + String(date.getDate()).padStart(2, "0")
+  );
+
+}
+
+
+/* =========================================================
+   CALENDAR
+========================================================= */
+
+function renderCalendar() {
+
+  const year =
+    currentMonth.getFullYear();
+
+  const month =
+    currentMonth.getMonth();
+
+
+  document.getElementById(
+    "monthTitle"
+  ).textContent =
+    new Intl.DateTimeFormat(
+      "en-US",
+      {
+        month: "long",
+        year: "numeric"
+      }
+    ).format(currentMonth);
+
+
+  const first =
+    new Date(year, month, 1);
+
+
+  let start =
+    (first.getDay() + 6) % 7;
+
+
+  const days =
+    new Date(
+      year,
+      month + 1,
+      0
+    ).getDate();
+
+
+  const cal =
+    document.getElementById("calendar");
+
+
+  cal.innerHTML = "";
+
+
+  for (let i = 0; i < start; i++) {
+
+    cal.innerHTML +=
+      "<div class='day empty'></div>";
+
+  }
+
+
+  for (let d = 1; d <= days; d++) {
+
+    const date =
+      new Date(year, month, d);
+
+
+    const key =
+      formatDateKey(date);
+
+
+    const worked =
+      !!workouts[key];
+
+
+    const today =
+      key === formatDateKey(new Date());
+
+
+    cal.innerHTML += `
+
+      <button
+        class="day
+          ${worked ? "worked" : ""}
+          ${today ? "today" : ""}
+        "
+        onclick="openDay('${key}')"
+      >
+
+        ${d}
+
+        ${
+          worked
+            ? "<span class='dot'></span>"
+            : ""
+        }
+
+      </button>
+
+    `;
+
+  }
+
+}
+
+
+/* =========================================================
+   CHANGE MONTH
+========================================================= */
+
+function changeMonth(amount) {
+
+  currentMonth.setMonth(
+    currentMonth.getMonth() + amount
+  );
+
+  renderCalendar();
+
+}
+
+
+/* =========================================================
+   OPEN WORKOUT
+========================================================= */
+
+function openDay(dateKey) {
+
+  currentWorkoutDate =
+    dateKey;
+
+
+  if (workouts[dateKey]) {
+
+    editingWorkout =
+      JSON.parse(
+        JSON.stringify(
+          workouts[dateKey]
+        )
+      );
+
+  } else {
+
+    editingWorkout = {
+
+      date: dateKey,
+
+      bodyWeight: "",
+
+      duration: "",
+
+      categories: [],
+
+      exercises: [],
+
+      notes: ""
+
+    };
+
+  }
+
+
+  document.getElementById(
+    "workoutTitle"
+  ).textContent =
+    workouts[dateKey]
+      ? "Edit Workout"
+      : "New Workout";
+
+
+  renderWorkout();
+
+  showPage("workout");
+
+}
+
+
+/* =========================================================
+   CHANGE WORKOUT DATE
+========================================================= */
+
+function changeWorkoutDate(newDate) {
+
+  if (
+    !newDate
+    ||
+    newDate === currentWorkoutDate
+  ) {
+    return;
+  }
+
+
+  if (!editingWorkout) {
+    return;
+  }
+
+
+  if (workouts[newDate]) {
+
+    alert(
+      "There is already a workout saved on that date."
+    );
+
+
+    document.getElementById(
+      "workoutDate"
+    ).value =
+      currentWorkoutDate;
+
+
+    return;
+
+  }
+
+
+  currentWorkoutDate =
+    newDate;
+
+
+  editingWorkout.date =
+    newDate;
+
+
+  document.getElementById(
+    "workoutTitle"
+  ).textContent =
+    "New Workout";
+
+}
+
+
+/* =========================================================
+   RENDER WORKOUT
+========================================================= */
+
+function renderWorkout() {
+
+  document.getElementById(
+    "workoutDate"
+  ).value =
+    currentWorkoutDate;
+
+
+  document.getElementById(
+    "bodyWeight"
+  ).value =
+    editingWorkout.bodyWeight || "";
+
+
+  document.getElementById(
+    "duration"
+  ).value =
+    editingWorkout.duration || "";
+
+
+  document.getElementById(
+    "notes"
+  ).value =
+    editingWorkout.notes || "";
+
+
+  const cats =
+    document.getElementById(
+      "categories"
+    );
+
+
+  cats.innerHTML = "";
+
+
+  muscleGroups.forEach(group => {
+
+    const button =
+      document.createElement("button");
+
+
+    button.className =
+      "category "
+      +
+      (
+        editingWorkout.categories.includes(group)
+          ? "selected"
+          : ""
+      );
+
+
+    button.textContent =
+      group;
+
+
+    button.onclick = () => {
+
+      if (
+        editingWorkout.categories
+          .includes(group)
+      ) {
+
+        editingWorkout.categories =
+          editingWorkout.categories
+            .filter(x => x !== group);
+
+      } else {
+
+        editingWorkout.categories.push(
+          group
+        );
+
+      }
+
+
+      renderWorkout();
+
+    };
+
+
+    cats.appendChild(button);
+
+  });
+
+
+  renderExercises();
+
+}
+
+
+/* =========================================================
+   RENDER EXERCISES
+========================================================= */
+
+function renderExercises() {
+
+  const container =
+    document.getElementById(
+      "exercises"
+    );
+
+
+  container.innerHTML = "";
+
+
+  editingWorkout.exercises
+    .forEach((ex, i) => {
+
+      const div =
+        document.createElement("div");
+
+
+      div.className =
+        "card exercise";
+
+
+      div.innerHTML = `
+
+        <div class="exercise-title">
+
+          <input
+            value="${escapeAttr(ex.name)}"
+            placeholder="Exercise name"
+          >
+
+          <button
+            class="danger small-btn"
+          >
+            ×
+          </button>
+
+        </div>
+
+
+        <label>
+          Muscle group
+        </label>
+
+
+        <select class="muscle-select">
+
+          ${muscleGroups
+            .map(group => `
+
+              <option
+                ${group === ex.muscleGroup
+                  ? "selected"
+                  : ""}
+              >
+                ${group}
+              </option>
+
+            `)
+            .join("")}
+
+        </select>
+
+
+        <label>
+          Resistance
+        </label>
+
+
+        <select class="mode-select">
+
+          <option
+            value="weighted"
+            ${ex.mode === "weighted"
+              ? "selected"
+              : ""}
+          >
+            Weights (kg)
+          </option>
+
+          <option
+            value="bodyweight"
+            ${ex.mode === "bodyweight"
+              ? "selected"
+              : ""}
+          >
+            Body weight
+          </option>
+
+        </select>
+
+
+        <div class="sets"></div>
+
+
+        <button
+          class="secondary full add-set"
+        >
+          ＋ Add set
+        </button>
+
+      `;
+
+
+      const nameInput =
+        div.querySelector(
+          ".exercise-title input"
+        );
+
+
+      nameInput.oninput =
+        e =>
+          editingWorkout
+            .exercises[i]
+            .name =
+            e.target.value;
+
+
+      div.querySelector(
+        ".danger"
+      ).onclick = () => {
+
+        editingWorkout
+          .exercises
+          .splice(i, 1);
+
+        renderExercises();
+
+      };
+
+
+      div.querySelector(
+        ".muscle-select"
+      ).onchange = e => {
+
+        editingWorkout
+          .exercises[i]
+          .muscleGroup =
+          e.target.value;
+
+      };
+
+
+      div.querySelector(
+        ".mode-select"
+      ).onchange = e => {
+
+        editingWorkout
+          .exercises[i]
+          .mode =
+          e.target.value;
+
+        renderExercises();
+
+      };
+
+
+      const sets =
+        div.querySelector(
+          ".sets"
+        );
+
+
+      ex.sets.forEach((set, j) => {
+
+        const row =
+          document.createElement(
+            "div"
+          );
+
+
+        row.className =
+          "set-row";
+
+
+        row.innerHTML = `
+
+          <div class="set-number">
+            ${j + 1}
+          </div>
+
+
+          ${
+            ex.mode === "weighted"
+
+              ? `
+
+                <input
+                  type="number"
+                  inputmode="decimal"
+                  min="0"
+                  step="0.5"
+                  placeholder="kg"
+                  value="${escapeAttr(set.weight)}"
+                >
+
+              `
+
+              : `
+
+                <div
+                  class="muted"
+                  style="
+                    padding:12px;
+                    text-align:center;
+                  "
+                >
+                  BW
+                </div>
+
+              `
+          }
+
+
+          <input
+            type="number"
+            inputmode="numeric"
+            min="0"
+            step="1"
+            placeholder="reps"
+            value="${escapeAttr(set.reps)}"
+          >
+
+
+          <button
+            class="danger small-btn"
+          >
+            ×
+          </button>
+
+        `;
+
+
+        const inputs =
+          row.querySelectorAll(
+            "input"
+          );
+
+
+        if (
+          ex.mode === "weighted"
+        ) {
+
+          inputs[0].oninput =
+            e =>
+              ex.sets[j].weight =
+              e.target.value;
+
+
+          inputs[1].oninput =
+            e =>
+              ex.sets[j].reps =
+              e.target.value;
+
+        } else {
+
+          inputs[0].oninput =
+            e =>
+              ex.sets[j].reps =
+              e.target.value;
+
+        }
+
+
+        row.querySelector(
+          ".danger"
+        ).onclick = () => {
+
+          ex.sets.splice(j, 1);
+
+          renderExercises();
+
+        };
+
+
+        sets.appendChild(row);
+
+      });
+
+
+      div.querySelector(
+        ".add-set"
+      ).onclick = () => {
+
+        ex.sets.push({
+
+          weight:
+            ex.mode === "weighted"
+              ? ""
+              : "",
+
+          reps: ""
+
+        });
+
+
+        renderExercises();
+
+      };
+
+
+      container.appendChild(div);
+
+    });
+
+}
+
+
+/* =========================================================
+   ADD EXERCISE
+========================================================= */
+
+function addExercise() {
+
+  editingWorkout.exercises.push({
+
+    name: "",
+
+    mode: "weighted",
+
+    muscleGroup:
+      editingWorkout.categories[0]
+      ||
+      "Other",
+
+    sets: [
+
+      {
+        weight: "",
+        reps: ""
+      }
+
+    ]
+
+  });
+
+
+  renderExercises();
+
+
+  const inputs =
+    document.querySelectorAll(
+      "#exercises .exercise-title input"
+    );
+
+
+  if (inputs.length) {
+
+    inputs[
+      inputs.length - 1
+    ].focus();
+
+  }
+
+}
+
+
+/* =========================================================
+   SAVE WORKOUT
+========================================================= */
+
+function saveWorkout() {
+
+  editingWorkout.bodyWeight =
+    document.getElementById(
+      "bodyWeight"
+    ).value;
+
+
+  editingWorkout.duration =
+    document.getElementById(
+      "duration"
+    ).value;
+
+
+  editingWorkout.notes =
+    document.getElementById(
+      "notes"
+    ).value;
+
+
+  /*
+    Remove completely empty exercises.
+  */
+
+  editingWorkout.exercises =
+    editingWorkout.exercises.filter(
+      ex =>
+        ex.name.trim()
+        ||
+        ex.sets.some(
+          set => set.reps
+        )
+    );
+
+
+  /*
+    Remove empty sets.
+  */
+
+  editingWorkout.exercises
+    .forEach(ex => {
+
+      ex.sets =
+        ex.sets.filter(
+          set => set.reps !== ""
+        );
+
+    });
+
+
+  /*
+    IMPORTANT:
+    Replace the existing workout
+    instead of creating another one.
+  */
+
+  workouts[currentWorkoutDate] =
+    JSON.parse(
+      JSON.stringify(
+        editingWorkout
+      )
+    );
+
+
+  persist();
+
+
+  showPage("gym");
+
+}
+
+
+/* =========================================================
+   DELETE WORKOUT
+========================================================= */
+
+function deleteWorkout() {
+
+  if (!workouts[currentWorkoutDate]) {
+
+    showPage("gym");
+
+    return;
+
+  }
+
+
+  if (
+    confirm(
+      "Delete this workout? This cannot be undone."
+    )
+  ) {
+
+    delete workouts[
+      currentWorkoutDate
+    ];
+
+
+    persist();
+
+
+    showPage("gym");
+
+  }
+
+}
+
+
+/* =========================================================
+   CALCULATE TOTAL VOLUME
+========================================================= */
+
+function totalVolume(workout) {
+
+  let total = 0;
+
+
+  workout.exercises
+    .forEach(ex => {
+
+      /*
+        Bodyweight exercises don't
+        have a kg value, so they aren't
+        included in kg volume.
+      */
+
+      if (
+        ex.mode !== "weighted"
+      ) {
+        return;
+      }
+
+
+      ex.sets.forEach(set => {
+
+        const weight =
+          parseFloat(
+            set.weight
+          );
+
+
+        const reps =
+          parseFloat(
+            set.reps
+          );
+
+
+        if (
+          Number.isFinite(weight)
+          &&
+          Number.isFinite(reps)
+        ) {
+
+          total +=
+            weight * reps;
+
+        }
+
+      });
+
+    });
+
+
+  return total;
+
+}
+
+
+/* =========================================================
+   STATISTICS
+========================================================= */
+
+function renderStats() {
+
+  const list =
+    Object.values(workouts)
+      .sort(
+        (a, b) =>
+          a.date.localeCompare(b.date)
+      );
+
+
+  const el =
+    document.getElementById(
+      "statsContent"
+    );
+
+
+  if (!list.length) {
+
+    el.innerHTML = `
+
+      <div class="card empty-state">
+
+        No workouts yet.
+
+        Save a workout and your
+        statistics will appear here.
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  /*
+    Body weight
+  */
+
+  const weights =
+    list
+      .map(
+        w =>
+          parseFloat(
+            w.bodyWeight
+          )
+      )
+      .filter(
+        Number.isFinite
+      );
+
+
+  const firstWeight =
+    weights[0];
+
+
+  const latestWeight =
+    weights[
+      weights.length - 1
+    ];
+
+
+  const change =
+    weights.length > 1
+
+      ? latestWeight - firstWeight
+
+      : 0;
+
+
+  /*
+    General statistics
+  */
+
+  const totalVol =
+    list.reduce(
+      (sum, workout) =>
+        sum + totalVolume(workout),
+      0
+    );
+
+
+  const totalMinutes =
+    list.reduce(
+      (sum, workout) =>
+        sum +
+        (
+          parseFloat(
+            workout.duration
+          )
+          ||
+          0
+        ),
+      0
+    );
+
+
+  /*
+    Muscle group statistics
+  */
+
+  const groupVolume = {};
+
+  const groupWorkouts = {};
+
+
+  muscleGroups.forEach(group => {
+
+    groupVolume[group] = 0;
+
+    groupWorkouts[group] = 0;
+
+  });
+
+
+  list.forEach(workout => {
+
+    const seen =
+      new Set();
+
+
+    workout.exercises
+      .forEach(ex => {
+
+        const group =
+          ex.muscleGroup
+          ||
+          "Other";
+
+
+        if (
+          !groupVolume[group]
+        ) {
+          groupVolume[group] = 0;
+        }
+
+
+        if (
+          ex.mode === "weighted"
+        ) {
+
+          ex.sets.forEach(set => {
+
+            const weight =
+              parseFloat(
+                set.weight
+              );
+
+
+            const reps =
+              parseFloat(
+                set.reps
+              );
+
+
+            if (
+              Number.isFinite(weight)
+              &&
+              Number.isFinite(reps)
+            ) {
+
+              groupVolume[group] +=
+                weight * reps;
+
+            }
+
+          });
+
+        }
+
+
+        seen.add(group);
+
+      });
+
+
+    /*
+      Also count muscle groups
+      selected at the top of workout.
+    */
+
+    (workout.categories || [])
+      .forEach(group =>
+        seen.add(group)
+      );
+
+
+    seen.forEach(group => {
+
+      groupWorkouts[group] =
+        (
+          groupWorkouts[group]
+          ||
+          0
+        ) + 1;
+
+    });
+
+  });
+
+
+  const activeGroups =
+    muscleGroups.filter(
+      group =>
+        groupVolume[group] > 0
+        ||
+        groupWorkouts[group] > 0
+    );
+
+
+  const maxVol =
+    Math.max(
+      1,
+      ...activeGroups.map(
+        group =>
+          groupVolume[group]
+      )
+    );
+
+
+  el.innerHTML = `
+
+    <div class="stat-grid">
+
+      <div class="stat">
+
+        <div class="label">
+          Workouts
+        </div>
+
+        <div class="value">
+          ${list.length}
+        </div>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="label">
+          Total volume
+        </div>
+
+        <div class="value">
+          ${formatNumber(totalVol)} kg
+        </div>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="label">
+          Total time
+        </div>
+
+        <div class="value">
+          ${formatMinutes(totalMinutes)}
+        </div>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="label">
+          Weight change
+        </div>
+
+        <div class="value">
+
+          ${
+            weights.length > 1
+
+              ? signed(
+                  change.toFixed(1)
+                )
+                + " kg"
+
+              : "—"
+
+          }
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <h2>
+      Body weight
+    </h2>
+
+
+    <div class="card">
+
+      <div class="row">
+
+        <div>
+
+          <div class="muted">
+            First
+          </div>
+
+          <strong>
+            ${
+              weights.length
+                ? firstWeight + " kg"
+                : "—"
+            }
+          </strong>
+
+        </div>
+
+
+        <div>
+
+          <div class="muted">
+            Latest
+          </div>
+
+          <strong>
+            ${
+              weights.length
+                ? latestWeight + " kg"
+                : "—"
+            }
+          </strong>
+
+        </div>
+
+
+        <div>
+
+          <div class="muted">
+            Change
+          </div>
+
+          <strong>
+            ${
+              weights.length > 1
+
+                ? signed(
+                    change.toFixed(1)
+                  ) + " kg"
+
+                : "—"
+            }
+          </strong>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <h2>
+      Muscle groups
+    </h2>
+
+
+    ${
+      activeGroups.length
+
+        ? activeGroups
+            .map(group => `
+
+              <div class="bar-row">
+
+                <div class="bar-label">
+
+                  <span>
+                    ${group}
+                  </span>
+
+                  <span>
+                    ${
+                      formatNumber(
+                        groupVolume[group]
+                      )
+                    }
+                    kg ·
+                    ${
+                      groupWorkouts[group]
+                    }
+                    workout${
+                      groupWorkouts[group] === 1
+                        ? ""
+                        : "s"
+                    }
+                  </span>
+
+                </div>
+
+
+                <div class="bar">
+
+                  <span
+                    style="
+                      width:${
+                        Math.max(
+                          3,
+                          groupVolume[group]
+                          /
+                          maxVol
+                          *
+                          100
+                        )
+                      }%;
+                    "
+                  ></span>
+
+                </div>
+
+              </div>
+
+            `)
+            .join("")
+
+        :
+
+        `
+          <div class="empty-state">
+            No muscle-group data yet.
+          </div>
+        `
+    }
+
+
+    <h2>
+      Recent workouts
+    </h2>
+
+
+    ${
+      list
+        .slice(-5)
+        .reverse()
+        .map(workout => `
+
+          <button
+            class="card full"
+            style="text-align:left"
+            onclick="openDay('${workout.date}')"
+          >
+
+            <strong>
+              ${formatDateDisplay(
+                workout.date
+              )}
+            </strong>
+
+            <br>
+
+            <span class="muted">
+
+              ${
+                (
+                  workout.categories || []
+                ).join(", ")
+                ||
+                "No muscle groups"
+              }
+
+              ·
+
+              ${
+                workout.duration
+                  ? formatMinutes(
+                      workout.duration
+                    )
+                  : "Duration not recorded"
+              }
+
+              ·
+
+              ${
+                formatNumber(
+                  totalVolume(workout)
+                )
+              }
+              kg volume
+
+            </span>
+
+          </button>
+
+        `)
+        .join("")
+    }
+
+  `;
+
+}
+
+
+/* =========================================================
+   STATISTICS HELPERS
+========================================================= */
+
+function formatNumber(number) {
+
+  return Math.round(
+    number * 10
+  ) / 10;
+
+}
+
+
+function signed(number) {
+
+  return Number(number) > 0
+    ? "+" + number
+    : number;
+
+}
+
+
+function formatMinutes(minutes) {
+
+  minutes =
+    parseInt(minutes) || 0;
+
+
+  const hours =
+    Math.floor(
+      minutes / 60
+    );
+
+
+  const mins =
+    minutes % 60;
+
+
+  if (hours) {
+
+    return (
+      hours
+      + "h "
+      + mins
+      + "m"
+    );
+
+  }
+
+
+  return mins + "m";
+
+}
+
+
+function formatDateDisplay(key) {
+
+  return new Intl.DateTimeFormat(
+    "en-US",
+    {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    }
+  ).format(
+    new Date(
+      key + "T12:00:00"
+    )
+  );
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeAttr(value) {
+
+  return String(
+    value ?? ""
+  )
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    );
+
+}
+
+
+/* =========================================================
+   FOOD TRACKER
+========================================================= */
+
+function showRecipeForm() {
+
+  document.getElementById(
+    "recipeForm"
+  ).style.display =
+    "block";
+
+}
+
+
+function hideRecipeForm() {
+
+  document.getElementById(
+    "recipeForm"
+  ).style.display =
+    "none";
+
+
+  [
+    "recipeName",
+    "recipeIngredients",
+    "recipeInstructions",
+    "recipeNotes"
+
+  ].forEach(id => {
+
+    document.getElementById(
+      id
+    ).value = "";
+
+  });
+
+}
+
+
+/* =========================================================
+   SAVE RECIPE
+========================================================= */
+
+function saveRecipe() {
+
+  const name =
+    document.getElementById(
+      "recipeName"
+    ).value.trim();
+
+
+  if (!name) {
+
+    alert(
+      "Please enter a recipe name."
+    );
+
+    return;
+
+  }
+
+
+  recipes.push({
+
+    id: Date.now(),
+
+    name: name,
+
+    ingredients:
+      document.getElementById(
+        "recipeIngredients"
+      ).value,
+
+    instructions:
+      document.getElementById(
+        "recipeInstructions"
+      ).value,
+
+    notes:
+      document.getElementById(
+        "recipeNotes"
+      ).value
+
+  });
+
+
+  localStorage.setItem(
+    RECIPE_KEY,
+    JSON.stringify(recipes)
+  );
+
+
+  hideRecipeForm();
+
+  renderRecipes();
+
+}
+
+
+/* =========================================================
+   RENDER RECIPES
+========================================================= */
+
+function renderRecipes() {
+
+  const el =
+    document.getElementById(
+      "recipes"
+    );
+
+
+  if (!recipes.length) {
+
+    el.innerHTML = `
+
+      <div class="empty-state">
+
+        No recipes yet.
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  el.innerHTML =
+    recipes
+      .map(recipe => `
+
+        <div class="recipe">
+
+          <h3>
+            ${escapeHTML(
+              recipe.name
+            )}
+          </h3>
+
+
+          ${
+            recipe.ingredients
+
+              ? `
+
+                <strong>
+                  Ingredients
+                </strong>
+
+                <p>
+                  ${escapeHTML(
+                    recipe.ingredients
+                  )}
+                </p>
+
+              `
+
+              : ""
+          }
+
+
+          ${
+            recipe.instructions
+
+              ? `
+
+                <strong>
+                  Instructions
+                </strong>
+
+                <p>
+                  ${escapeHTML(
+                    recipe.instructions
+                  )}
+                </p>
+
+              `
+
+              : ""
+          }
+
+
+          ${
+            recipe.notes
+
+              ? `
+
+                <strong>
+                  Notes
+                </strong>
+
+                <p>
+                  ${escapeHTML(
+                    recipe.notes
+                  )}
+                </p>
+
+              `
+
+              : ""
+          }
+
+
+          <button
+            class="danger"
+            onclick="deleteRecipe(${recipe.id})"
+          >
+            Delete
+          </button>
+
+        </div>
+
+      `)
+      .join("");
+
+}
+
+
+/* =========================================================
+   DELETE RECIPE
+========================================================= */
+
+function deleteRecipe(id) {
+
+  if (
+    confirm(
+      "Delete this recipe?"
+    )
+  ) {
+
+    recipes =
+      recipes.filter(
+        recipe =>
+          recipe.id !== id
+      );
+
+
+    localStorage.setItem(
+      RECIPE_KEY,
+      JSON.stringify(recipes)
+    );
+
+
+    renderRecipes();
+
+  }
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHTML(value) {
+
+  return String(
+    value ?? ""
+  )
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
+
+
+/* =========================================================
+   START APP
+========================================================= */
+
+renderCalendar();
+
+renderRecipes();
+
+</script>
+
+</body>
+</html>
